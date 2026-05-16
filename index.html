@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milksmp | Профиль</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/skinview3d@3.0.0/dist/bundle.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d0d0f;
+            --card-bg: #16161a;
+            --accent: #db2777;
+            --text-main: #ffffff;
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
+
+        body { 
+            background: var(--bg-color); 
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+        }
+
+        .profile-banner {
+            height: 240px;
+            background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.7)), url('https://i.imgur.com/8Q8o3p0.png');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+            font-size: 11px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .input-style {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            color: white;
+            border-radius: 0.75rem;
+            padding: 0.75rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .input-style:focus { border-color: var(--accent); }
+
+        #mc_banner_canvas { image-rendering: pixelated; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto space-y-6">
+        
+        <nav class="flex justify-between items-center px-4 mb-8">
+            <div class="flex items-center gap-8">
+                <div class="text-pink-500 font-black text-2xl tracking-tighter italic">MILKSMP</div>
+                <div class="hidden md:flex gap-6 text-[11px] font-bold opacity-50 uppercase tracking-widest">
+                    <a href="#" class="hover:opacity-100">Википедия</a>
+                    <a href="#" class="hover:opacity-100">Карта</a>
+                    <a href="#" class="hover:opacity-100">Статистика</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <div id="top_role_display" class="text-[9px] uppercase font-black text-red-500">Владелец</div>
+                    <div class="text-sm font-bold" id="top_nick_display">Blackslime</div>
+                </div>
+                <img id="nav_avatar" src="https://minotar.net/helm/Steve/40" class="w-10 h-10 rounded-xl border border-white/10">
+            </div>
+        </nav>
+
+        <div class="glass-card overflow-hidden shadow-2xl">
+            <div id="user_banner_bg" class="profile-banner relative p-8 flex flex-col justify-end">
+                <button onclick="openEdit()" class="absolute top-6 right-6 bg-black/40 hover:bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl text-[10px] font-bold uppercase border border-white/10 transition">
+                    🖊️ Настройки профиля
+                </button>
+                
+                <div class="flex items-center gap-6">
+                    <img id="head_img" src="https://minotar.net/helm/Steve/128" class="w-28 h-28 rounded-2xl border-4 border-[#16161a] shadow-2xl">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <h1 id="user_nick" class="text-4xl font-black tracking-tight">Blackslime</h1>
+                            <div class="flex gap-1.5" id="user_badges">
+                                <span class="badge text-yellow-400">⚡</span>
+                                <span class="badge text-green-400">&lt;/&gt;</span>
+                                <span class="badge text-pink-400">💎</span>
+                            </div>
+                        </div>
+                        <p id="user_status" class="text-sm opacity-60 italic mt-1">обещаю больше не проливать пиво на хост..</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-4 glass-card p-6 flex items-center justify-center min-h-[450px]">
+                <canvas id="skin_canvas"></canvas>
+            </div>
+
+            <div class="lg:col-span-8 space-y-6">
+                <div class="glass-card p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg">Подписка</h3>
+                        <button class="text-pink-500 text-xs font-bold hover:underline">Продлить</button>
+                    </div>
+                    <div class="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="font-bold text-sm">Подписчик Milk (Бессрочная)</p>
+                            <p class="text-[11px] opacity-40 mt-0.5">Вам доступны все визуальные эффекты</p>
+                        </div>
+                        <button class="bg-white/5 hover:bg-white/10 px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase transition">Стиль чата</button>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg">Фракция</h3>
+                        <div id="owner_actions" class="hidden">
+                            <button onclick="openRoleManager()" class="bg-blue-600/20 text-blue-400 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase border border-blue-500/20">Управление ролями</button>
+                        </div>
+                    </div>
+                    
+                    <div id="faction_display" class="bg-black/20 border border-white/5 p-8 rounded-2xl flex flex-col items-center justify-center text-center">
+                        <p class="text-sm opacity-30 font-medium mb-4">Вы пока не состоите во фракции</p>
+                        <button onclick="openFactionModal()" class="bg-pink-600 hover:bg-pink-500 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition shadow-lg shadow-pink-600/20">Создать свою</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section class="space-y-4">
+            <h3 class="text-xl font-black px-4 italic">Комментарии</h3>
+            <div class="glass-card p-8">
+                <div class="flex gap-4 mb-10">
+                    <img id="comment_avatar" src="https://minotar.net/helm/Steve/48" class="w-12 h-12 rounded-xl">
+                    <div class="flex-1 space-y-3">
+                        <textarea id="comment_input" class="input-style w-full h-28 resize-none text-sm" placeholder="Напишите что-нибудь приятное..."></textarea>
+                        <div class="flex justify-end">
+                            <button onclick="postComment()" class="bg-pink-600 hover:bg-pink-500 text-white px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition">Отправить</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="comments_list" class="space-y-4"></div>
+            </div>
+        </section>
+    </div>
+
+    <div id="edit_modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[100] p-4 backdrop-blur-md">
+        <div class="glass-card p-8 w-full max-w-md shadow-2xl">
+            <h2 class="text-2xl font-black mb-6 italic">Настройки</h2>
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black opacity-40 uppercase ml-1">Никнейм</label>
+                    <input type="text" id="in_nick" class="input-style w-full" placeholder="Новый ник">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black opacity-40 uppercase ml-1">Статус</label>
+                    <input type="text" id="in_status" class="input-style w-full" placeholder="О чем думаете?">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black opacity-40 uppercase ml-1">Скин (.png)</label>
+                        <input type="file" id="in_skin" accept="image/png" class="input-style w-full text-[10px]">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black opacity-40 uppercase ml-1">Баннер</label>
+                        <input type="file" id="in_banner" accept="image/*" class="input-style w-full text-[10px]">
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeEdit()" class="flex-1 py-4 rounded-2xl bg-white/5 font-bold text-xs uppercase">Отмена</button>
+                    <button onclick="applyProfile()" class="flex-1 py-4 rounded-2xl bg-pink-600 font-black text-xs uppercase">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="role_modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[110] p-4 backdrop-blur-md">
+        <div class="glass-card p-8 w-full max-w-sm">
+            <h2 class="text-xl font-black mb-6">Выдача ролей</h2>
+            <div class="space-y-4">
+                <select id="role_target_user" class="input-style w-full">
+                    <option value="Blackslime">Blackslime (Вы)</option>
+                    <option value="altamly">altamly</option>
+                </select>
+                <select id="role_new_val" class="input-style w-full">
+                    <option value="owner">Владелец</option>
+                    <option value="admin">Администратор</option>
+                    <option value="player">Игрок</option>
+                </select>
+                <button onclick="confirmRoleChange()" class="w-full py-4 bg-blue-600 rounded-2xl font-black text-xs uppercase">Обновить роль</button>
+                <button onclick="document.getElementById('role_modal').style.display='none'" class="w-full py-2 text-xs opacity-50">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="faction_modal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[100] p-4 backdrop-blur-md">
+        <div class="glass-card p-10 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="flex flex-col md:flex-row gap-12">
+                <div class="flex-1 space-y-6">
+                    <h2 class="text-3xl font-black italic">СОЗДАНИЕ ФРАКЦИИ</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <input type="text" id="fac_name" class="input-style w-full" placeholder="Название фракции">
+                        </div>
+                        <div>
+                            <input type="text" id="fac_tag" maxlength="4" class="input-style w-full uppercase" placeholder="ТЕГ">
+                        </div>
+                        <div>
+                            <select id="ban_base" class="input-style w-full" onchange="drawBanner()"></select>
+                        </div>
+                    </div>
+                    <div id="layers_container" class="space-y-2"></div>
+                    <button onclick="addLayer()" class="w-full py-4 border-2 border-dashed border-white/10 rounded-2xl text-[10px] font-black uppercase hover:bg-white/5 transition">+ Добавить узор</button>
+                </div>
+                <div class="w-full md:w-64 flex flex-col items-center gap-6">
+                    <canvas id="mc_banner_canvas" width="200" height="400" class="w-48 h-96 rounded-xl shadow-2xl bg-black border-4 border-white/10"></canvas>
+                    <div class="flex gap-3 w-full">
+                        <button onclick="closeFactionModal()" class="flex-1 py-4 bg-white/5 rounded-2xl font-bold text-[10px] uppercase">Отмена</button>
+                        <button onclick="saveFaction()" class="flex-1 py-4 bg-pink-600 rounded-2xl font-black text-[10px] uppercase">Создать</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let viewer;
+        let currentUser = { name: "Blackslime", role: "owner" };
+        let layers = [];
+        let comments = [
+            { author: "altamly", role: "admin", text: "+реп, обещал угостить пивом. жду~", date: "26 февр. 2026" }
+        ];
+
+        const mcColors = {
+            black: '#1D1D21', red: '#B02E26', green: '#5E7C16', brown: '#835432', blue: '#3C44AA', purple: '#8932B8', cyan: '#169C9C', light_gray: '#9D9D97',
+            gray: '#474F52', pink: '#F38BAA', lime: '#80C71F', yellow: '#FED83D', light_blue: '#3AB3DA', magenta: '#C74EBD', orange: '#F9801D', white: '#F9FFFE'
+        };
+
+        const patterns = {
+            none: 'Пусто',
+            stripe_top: 'Верхняя полоса', stripe_bottom: 'Нижняя полоса', stripe_left: 'Левая полоса', stripe_right: 'Правая полоса',
+            stripe_center: 'Центральный столб', stripe_middle: 'Пояс',
+            half_v: 'Левая половина', half_v_right: 'Правая половина', half_h: 'Верхняя половина', half_h_bottom: 'Нижняя половина',
+            cross: 'Прямой крест', saltire: 'Андреевский крест (X)',
+            rhombus: 'Ромб', circle: 'Круг', border: 'Рамка', gradient: 'Градиент'
+        };
+
+        window.onload = () => {
+            initSkinViewer();
+            fillSelects();
+            renderComments();
+            checkRole();
+            drawBanner();
+        };
+
+        function checkRole() {
+            const actions = document.getElementById('owner_actions');
+            const roleDisp = document.getElementById('top_role_display');
+            if(currentUser.role === 'owner') {
+                actions.classList.remove('hidden');
+                roleDisp.innerText = 'Владелец';
+                roleDisp.className = "text-[9px] uppercase font-black text-red-500";
+            } else {
+                actions.classList.add('hidden');
+                roleDisp.innerText = currentUser.role === 'admin' ? 'Админ' : 'Игрок';
+                roleDisp.className = "text-[9px] uppercase font-black text-blue-400";
+            }
+        }
+
+        function fillSelects() {
+            const sel = document.getElementById('ban_base');
+            Object.keys(mcColors).forEach(c => sel.add(new Option(c.toUpperCase(), c)));
+            sel.value = 'black';
+        }
+
+        // --- Banner Logic ---
+        function addLayer() {
+            if(layers.length < 6) { 
+                layers.push({ id: Date.now(), type: 'stripe_top', color: 'white' }); 
+                renderLayers(); 
+                drawBanner();
+            }
+        }
+
+        function renderLayers() {
+            const container = document.getElementById('layers_container');
+            container.innerHTML = layers.map(l => `
+                <div class="flex items-center gap-2 bg-white/5 p-2 rounded-xl border border-white/5">
+                    <select class="input-style !py-1 !text-[10px] flex-1" onchange="updateLayer(${l.id}, 'type', this.value)">
+                        ${Object.entries(patterns).map(([k, v]) => `<option value="${k}" ${l.type === k ? 'selected' : ''}>${v}</option>`).join('')}
+                    </select>
+                    <select class="input-style !py-1 !text-[10px] w-24" onchange="updateLayer(${l.id}, 'color', this.value)">
+                        ${Object.keys(mcColors).map(c => `<option value="${c}" ${l.color === c ? 'selected' : ''}>${c.toUpperCase()}</option>`).join('')}
+                    </select>
+                    <button onclick="removeLayer(${l.id})" class="text-red-500 px-2 font-bold">×</button>
+                </div>
+            `).join('');
+        }
+
+        function updateLayer(id, f, v) { const l = layers.find(x => x.id === id); if(l) l[f] = v; drawBanner(); }
+        function removeLayer(id) { layers = layers.filter(l => l.id !== id); renderLayers(); drawBanner(); }
+
+        function drawBanner() {
+            const canvas = document.getElementById('mc_banner_canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0,200,400);
+            ctx.fillStyle = mcColors[document.getElementById('ban_base').value];
+            ctx.fillRect(0,0,200,400);
+
+            layers.forEach(l => {
+                ctx.fillStyle = mcColors[l.color];
+                if(l.type === 'stripe_top') ctx.fillRect(0, 0, 200, 133);
+                if(l.type === 'stripe_bottom') ctx.fillRect(0, 267, 200, 133);
+                if(l.type === 'stripe_left') ctx.fillRect(0, 0, 67, 400);
+                if(l.type === 'stripe_right') ctx.fillRect(133, 0, 67, 400);
+                if(l.type === 'stripe_center') ctx.fillRect(67, 0, 66, 400);
+                if(l.type === 'stripe_middle') ctx.fillRect(0, 167, 200, 66);
+                if(l.type === 'half_v') ctx.fillRect(0, 0, 100, 400);
+                if(l.type === 'half_v_right') ctx.fillRect(100, 0, 100, 400);
+                if(l.type === 'half_h') ctx.fillRect(0, 0, 200, 200);
+                if(l.type === 'half_h_bottom') ctx.fillRect(0, 200, 200, 200);
+                if(l.type === 'cross') { ctx.fillRect(80, 0, 40, 400); ctx.fillRect(0, 180, 200, 40); }
+                if(l.type === 'saltire') { 
+                    ctx.beginPath(); ctx.lineWidth = 40; ctx.strokeStyle = mcColors[l.color];
+                    ctx.moveTo(0,0); ctx.lineTo(200,400); ctx.moveTo(200,0); ctx.lineTo(0,400); ctx.stroke();
+                }
+                if(l.type === 'rhombus') { ctx.beginPath(); ctx.moveTo(100, 50); ctx.lineTo(180, 200); ctx.lineTo(100, 350); ctx.lineTo(20, 200); ctx.fill(); }
+                if(l.type === 'circle') { ctx.beginPath(); ctx.arc(100, 200, 70, 0, Math.PI*2); ctx.fill(); }
+                if(l.type === 'border') { ctx.lineWidth = 24; ctx.strokeStyle = mcColors[l.color]; ctx.strokeRect(12, 12, 176, 376); }
+                if(l.type === 'gradient') { 
+                    let g = ctx.createLinearGradient(0,0,0,400); 
+                    g.addColorStop(0, mcColors[l.color]); g.addColorStop(1, 'transparent'); 
+                    ctx.fillStyle = g; ctx.fillRect(0,0,200,400); 
+                }
+            });
+        }
+
+        // --- Profile Logic ---
+        function applyProfile() {
+            const n = document.getElementById('in_nick').value;
+            const s = document.getElementById('in_status').value;
+            const sk = document.getElementById('in_skin').files[0];
+            const bn = document.getElementById('in_banner').files[0];
+
+            if(n) { 
+                document.getElementById('user_nick').innerText = n; 
+                document.getElementById('top_nick_display').innerText = n;
+                currentUser.name = n;
+                document.getElementById('head_img').src = `https://minotar.net/helm/${n}/128`;
+                document.getElementById('nav_avatar').src = `https://minotar.net/helm/${n}/40`;
+                document.getElementById('comment_avatar').src = `https://minotar.net/helm/${n}/48`;
+            }
+            if(s) document.getElementById('user_status').innerText = s;
+            if(sk) { const r = new FileReader(); r.onload = (e) => viewer.loadSkin(e.target.result); r.readAsDataURL(sk); }
+            if(bn) { const r = new FileReader(); r.onload = (e) => document.getElementById('user_banner_bg').style.backgroundImage = `url(${e.target.result})`; r.readAsDataURL(bn); }
+            closeEdit();
+        }
+
+        function saveFaction() {
+            const name = document.getElementById('fac_name').value || 'Моя Фракция';
+            const tag = document.getElementById('fac_tag').value || 'TAG';
+            const bData = document.getElementById('mc_banner_canvas').toDataURL();
+            
+            document.getElementById('faction_display').innerHTML = `
+                <div class="flex items-center gap-8 text-left w-full">
+                    <img src="${bData}" class="w-16 h-32 rounded-lg border border-white/10 shadow-xl">
+                    <div>
+                        <h4 class="text-2xl font-black italic tracking-tighter">${name}</h4>
+                        <div class="flex items-center gap-3 mt-2">
+                            <span class="bg-pink-600 text-white px-2 py-0.5 rounded text-[9px] font-black uppercase">${tag}</span>
+                            <span class="text-[10px] opacity-40 font-bold uppercase tracking-widest">Участников: 1</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            closeFactionModal();
+        }
+
+        // --- Role Manager ---
+        function openRoleManager() { document.getElementById('role_modal').style.display = 'flex'; }
+        function confirmRoleChange() {
+            const target = document.getElementById('role_target_user').value;
+            const role = document.getElementById('role_new_val').value;
+            
+            if(target === currentUser.name) {
+                currentUser.role = role;
+                checkRole();
+            }
+            // Обновляем в комментариях
+            comments.forEach(c => { if(c.author === target) c.role = role; });
+            renderComments();
+            document.getElementById('role_modal').style.display = 'none';
+        }
+
+        // --- Comments ---
+        function renderComments() {
+            document.getElementById('comments_list').innerHTML = comments.map(c => `
+                <div class="bg-white/[0.02] border border-white/5 p-5 rounded-2xl flex gap-4 transition hover:bg-white/[0.04]">
+                    <img src="https://minotar.net/helm/${c.author}/48" class="w-10 h-10 rounded-xl">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm ${c.role === 'owner' ? 'text-red-400' : 'text-pink-500'}">${c.author}</span>
+                                <span class="text-[8px] font-black uppercase opacity-30 tracking-tighter">${c.role || 'игрок'}</span>
+                            </div>
+                            <span class="text-[10px] opacity-30">${c.date}</span>
+                        </div>
+                        <p class="text-sm opacity-70 leading-relaxed">${c.text}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function postComment() {
+            const val = document.getElementById('comment_input').value.trim();
+            if(!val) return;
+            comments.unshift({ author: currentUser.name, role: currentUser.role, text: val, date: "Только что" });
+            document.getElementById('comment_input').value = '';
+            renderComments();
+        }
+
+        function initSkinViewer() {
+            viewer = new skinview3d.SkinViewer({ canvas: document.getElementById("skin_canvas"), width: 300, height: 400, skin: "https://bsspirit.github.io/skinview3d/skins/steve.png" });
+            viewer.autoRotate = true;
+            viewer.animations.add(skinview3d.WalkingAnimation);
+        }
+
+        function openEdit() { document.getElementById('edit_modal').style.display = 'flex'; }
+        function closeEdit() { document.getElementById('edit_modal').style.display = 'none'; }
+        function openFactionModal() { document.getElementById('faction_modal').style.display = 'flex'; }
+        function closeFactionModal() { document.getElementById('faction_modal').style.display = 'none'; }
+    </script>
+</body>
+</html>
